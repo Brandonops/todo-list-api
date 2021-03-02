@@ -1,0 +1,17 @@
+body {
+    background-color: lightslategray;
+    color: rgb(20, 220, 110);
+    font-size: 30px;
+}
+h1 {
+    text-align: center;
+}
+
+#todosContainer, #todosForm {
+    margin: 25px;
+}
+.complete {
+    color: red;
+    text-decoration: line-through;
+}
+

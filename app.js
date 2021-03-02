@@ -1,29 +1,33 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { response } = require('express');
-
+const methodOverride = require("method-override")
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(express.static('./public'));
-
+app.use(methodOverride("_method"))
 const todoList = [
   {
     id: 1,
     description: 'Implement a REST API',
+    completed: false,
   },
   {
     id: 2,
     description: 'Build a frontend',
+    completed: false,
   },
   {
     id: 3,
     description: '???',
+    completed: false,
   },
   {
     id: 4,
     description: 'Profit!',
+    completed: false,
   },
 ];
 
@@ -40,63 +44,66 @@ app.get("/api/todos", (req, res) => {
 app.get("/api/todos/:id", (req, res) => {
 
 
-    //get id from route 
-    const id = Number(req.params.id);
-    //use id to find one todo item
-    const todo =todoList.find((currTodo) => {
-      if (currTodo.id === id) {
-        return true;
-      } else {
-        return false;
-      }
-    })
-    if (!todo) {
-      res.status(404).json({
-        error: `Could not find todo with ID: ${id}`
-      })
+  //get id from route 
+  const id = Number(req.params.id);
+  //use id to find one todo item
+  const todo = todoList.find((currTodo) => {
+    if (currTodo.id === id) {
+      return true;
+    } else {
+      return false;
     }
-    //send back todo
-    res.json(todo)
+  })
+  if (!todo) {
+    res.status(404).json({
+      error: `Could not find todo with ID: ${id}`
+    })
+  }
+  //send back todo
+  res.json(todo)
 })
 
 // POST /api/todos
 app.post("/api/todos", (req, res) => {
   if (req.body.description) {
-  const newTodo = {
-    id: nextId++,
-    description: req.body.description
+    const newTodo = {
+      id: nextId++,
+      description: req.body.description,
+      completed: false
+    }
+    todoList.push(newTodo)
+    res.status(201)
+    res.send()
+  } else {
+    res.status(422);
+    res.json({
+      error: "please add a description"
+    })
   }
-  todoList.push(newTodo)
-  res.status(201)
-  res.send()
-} else {
-  res.status(422);
-  res.json({
-    error: "please add a description"
-  })
-}
 })
 
 
-// PUT /api/todos/:id
+
 app.patch("/api/todos/:id", (req, res) => {
-  //get info needed to update
-  //find todo to update
-  //update the object
-  if (req.body.description) {
 
-    //get id from route
+  if (req.body.description || req.body.description === "" || req.body.completed) {
+
+
     const id = Number(req.params.id);
-    // find where the todo exists in the todoList array
     const todoIndex = todoList.findIndex((currTodo) => currTodo.id === id ? true : false);
-    
-    //update object inside of the todolist array
-    todoList[todoIndex].description = req.body.description;
+    if (req.body.description) {
 
-    //send back the updated todo item
+      todoList[todoIndex].description = req.body.description;
+    }
+
+    if (req.body.completed === "true" || req.body.completed === true) {
+      todoList[todoIndex].completed = true
+    } else if (req.body.completed === "false" || req.body.completed === false) {
+      todoList[todoIndex].completed = false
+    }
     res.json(todoList[todoIndex]);
   } else {
-    res.status(422).json ({
+    res.status(422).json({
       error: "Please provide a description"
     });
   };
